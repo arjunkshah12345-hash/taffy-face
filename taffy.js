@@ -163,7 +163,11 @@ export function createTaffy(canvas, options = {}) {
     const r = toRest(px, py);
     if (!r || !opaqueAt(r[0], r[1])) return;
     e.preventDefault();
-    canvas.setPointerCapture(e.pointerId);
+    try {
+      canvas.setPointerCapture(e.pointerId);
+    } catch {
+      // pointer already gone (or synthetic); dragging still works without capture
+    }
     const sigma = o.radius * img.w;
     const s2 = 2 * sigma * sigma;
     for (let i = 0; i < n; i++) {
