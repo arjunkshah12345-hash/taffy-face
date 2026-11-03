@@ -1,5 +1,7 @@
 # taffy-face
 
+<p align="center"><a href="https://arjunkshah12345-hash.github.io/taffy-face/"><img src="assets/demo.gif" width="360" alt="Dragging a cartoon face: the cheek stretches like taffy, switches to an ouch face, and springs back" /></a></p>
+
 **Pull my face.** Grab any part of a photo, stretch it like taffy, and let go to watch it spring back. When you pull hard enough it can switch to an "ouch" face.
 
 An open-source remake of the effect on [@rameerez's site](https://x.com/rameerez/status/2115858625180946827). It's one file with no dependencies and about 300 lines of WebGL2.
