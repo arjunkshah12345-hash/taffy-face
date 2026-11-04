@@ -6,7 +6,7 @@
 
 An open-source remake of the effect on [@rameerez's site](https://x.com/rameerez/status/2115858625180946827). It's one file with no dependencies and about 300 lines of WebGL2.
 
-**[▶ Try it with your own face](https://arjunkshah12345-hash.github.io/taffy-face/)**: upload or paste a photo. Nothing leaves your browser.
+**[▶ Pull Dario Amodei's face](https://arjunkshah12345-hash.github.io/taffy-face/)**, then switch to your own: upload or paste a photo. Nothing leaves your browser.
 
 ## Use it on your site
 
@@ -72,4 +72,6 @@ The image is drawn on a 56×56 triangle mesh. When you grab, every vertex gets a
 
 ## License
 
-MIT
+Code: MIT.
+
+The example photo of Dario Amodei (`assets/dario.webp`) is by [TechCrunch](https://commons.wikimedia.org/wiki/File:Dario_Amodei_at_TechCrunch_Disrupt_2023_02_(cropped).jpg), licensed [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/), with the background removed and cropped. It isn't covered by the MIT license. This is a fan-made toy, not affiliated with or endorsed by Dario Amodei or Anthropic.

@@ -3,42 +3,81 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>taffy-face — pull my face</title>
-<meta name="description" content="Open-source stretchy face effect. Drop in your photo, grab your face, pull. Zero dependencies." />
+<title>taffy-face — pull Dario's face</title>
+<meta name="description" content="Open-source stretchy face effect. Grab a face, pull it like taffy, let go and it springs back. One file, no dependencies. Try it on Dario, then on yourself." />
+<meta property="og:title" content="taffy-face — pull Dario's face" />
+<meta property="og:description" content="Grab a face, stretch it like taffy, watch it spring back. One file of WebGL2, MIT." />
+<meta property="og:image" content="https://arjunkshah12345-hash.github.io/taffy-face/assets/dario.webp" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;800;900&display=swap" rel="stylesheet" />
 <style>
-  :root { --paper: #f1efea; --ink: #141414; --orange: #f04a0c; --muted: #6b6862; }
+  :root { --paper: #f1efea; --ink: #141414; --orange: #f04a0c; --muted: #6b6862; --line: #d8d4cc; }
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body { margin: 0; background: #dedbd4; color: var(--ink); font: 15px/1.55 Archivo, system-ui, sans-serif; }
+  a { color: inherit; }
+  nav { max-width: 1120px; margin: 0 auto; padding: 18px clamp(12px, 3vw, 4px) 0; display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; }
+  nav b { font-weight: 900; letter-spacing: -.02em; font-size: 16px; }
+  nav div { display: flex; gap: 18px; }
+  nav a { text-decoration: none; color: var(--muted); }
+  nav a:hover { color: var(--ink); }
+  @media (max-width: 480px) { nav div { gap: 12px; } nav .wide { display: none; } }
+
   .card {
-    max-width: 1120px; margin: clamp(12px, 3vw, 40px) auto; background: var(--paper);
-    border-radius: 14px; padding: clamp(24px, 5vw, 64px); display: grid;
-    grid-template-columns: minmax(0, 1fr) min(480px, 44vw); gap: clamp(24px, 4vw, 56px); align-items: center;
+    max-width: 1120px; margin: clamp(12px, 2vw, 18px) auto; background: var(--paper);
+    border-radius: 14px; padding: clamp(24px, 5vw, 64px);
   }
-  @media (max-width: 820px) { .card { grid-template-columns: minmax(0, 1fr); } .stage { max-width: 440px; margin: 0 auto; } .stage { order: -1; } }
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) min(480px, 44vw); gap: clamp(24px, 4vw, 56px); align-items: center; }
+  @media (max-width: 820px) { .hero { grid-template-columns: minmax(0, 1fr); } .stage { max-width: 440px; margin: 0 auto; order: -1; } }
   h1 { font-weight: 900; font-size: clamp(44px, 6.4vw, 76px); line-height: .95; letter-spacing: -.035em; margin: 0 0 20px; }
-  h1 mark { background: var(--orange); color: var(--ink); padding: 0 .08em; }
-  p { margin: 0 0 14px; max-width: 46ch; }
+  h1 mark, h2 mark { background: var(--orange); color: var(--ink); padding: 0 .08em; }
+  h2 { font-weight: 900; font-size: clamp(30px, 4vw, 44px); line-height: 1; letter-spacing: -.03em; margin: 0 0 18px; }
+  h3 { font-weight: 800; font-size: 17px; margin: 0 0 6px; }
+  p { margin: 0 0 14px; max-width: 54ch; }
   .muted { color: var(--muted); font-size: 13.5px; }
-  .row { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 12px; }
-  button, label.btn {
-    font: 800 12px/1 Archivo, sans-serif; letter-spacing: .06em; text-transform: uppercase;
+  .eyebrow { font: 800 11px/1 Archivo, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--orange); margin-bottom: 14px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 12px; align-items: center; }
+  button, label.btn, a.btn {
+    font: 800 12px/1 Archivo, sans-serif; letter-spacing: .06em; text-transform: uppercase; text-decoration: none;
     border: 1.5px solid var(--ink); background: transparent; color: var(--ink);
     padding: 12px 16px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
   }
   .primary { background: var(--orange); border-color: var(--orange); color: #fff; }
-  button:hover, label.btn:hover { transform: translateY(-1px); }
+  button:hover, label.btn:hover, a.btn:hover { transform: translateY(-1px); }
   input[type=file] { display: none; }
+
+  /* face picker */
+  .faces { display: inline-flex; border: 1.5px solid var(--ink); border-radius: 8px; padding: 3px; gap: 3px; }
+  .faces button { border: 0; padding: 9px 12px; border-radius: 5px; }
+  .faces button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .faces button:hover { transform: none; }
   .toggle { display: flex; gap: 8px; align-items: center; font-size: 13.5px; margin-top: 4px; }
+
   pre {
     background: var(--ink); color: #f4f1ea; border-radius: 8px; padding: 16px 18px; overflow-x: auto;
-    font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; margin: 22px 0 8px; position: relative;
+    font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; margin: 0 0 8px; position: relative;
   }
-  pre .k { color: #ff8a5c; } pre .s { color: #b9e28c; }
-  #copy { position: absolute; top: 10px; right: 10px; border-color: #555; color: #ddd; padding: 7px 10px; font-size: 10px; }
-  footer { max-width: 1120px; margin: 0 auto 32px; padding: 0 16px; font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; }
-  a { color: inherit; }
+  pre .k { color: #ff8a5c; } pre .s { color: #b9e28c; } pre .c { color: #8a867e; }
+  .copy { position: absolute; top: 10px; right: 10px; border-color: #555; color: #ddd; padding: 7px 10px; font-size: 10px; }
+  code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  p code, td code { background: #e4e0d8; padding: 1px 5px; border-radius: 4px; }
+
+  .split { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+  @media (max-width: 820px) { .split { grid-template-columns: minmax(0, 1fr); } }
+  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 8px; }
+  @media (max-width: 820px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+  .step { border-top: 2px solid var(--ink); padding-top: 14px; }
+  .step .n { font-weight: 900; font-size: 34px; line-height: 1; color: var(--orange); margin-bottom: 10px; }
+  .step p { font-size: 14px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font: 800 11px/1 Archivo, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  .tablewrap { overflow-x: auto; }
+
+  footer { max-width: 1120px; margin: 0 auto 36px; padding: 6px clamp(12px, 3vw, 4px); font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+  footer p { max-width: 70ch; margin: 0; }
 
   /* stage: orange disc + canvas. Head pops out above the disc, body is clipped to it. */
   .stage { position: relative; width: 100%; aspect-ratio: 1 / 1.2; }
@@ -50,90 +89,206 @@
     mask-image: radial-gradient(40% 33.333% at 50% 62.5%, #000 99.4%, transparent 100%), linear-gradient(#000 62.5%, transparent 62.5%);
   }
   .hint { position: absolute; left: 0; right: 0; bottom: -6px; text-align: center; font-size: 12px; color: var(--muted); pointer-events: none; transition: opacity .4s; }
-  .drop::after { content: "Drop it!"; position: absolute; inset: 0; display: grid; place-items: center; background: #f04a0c22; border: 2px dashed var(--orange); border-radius: 14px; font-weight: 900; font-size: 28px; }
+  .ouch { position: absolute; top: 4%; right: 2%; background: var(--ink); color: var(--paper); font-weight: 900; font-size: 15px; padding: 7px 12px; border-radius: 999px; transform: rotate(8deg) scale(.6); opacity: 0; transition: .18s; pointer-events: none; }
+  .ouch.on { opacity: 1; transform: rotate(8deg) scale(1); }
+  .drop::after { content: "Drop it!"; position: fixed; inset: 0; display: grid; place-items: center; background: #f04a0c22; border: 2px dashed var(--orange); font-weight: 900; font-size: 28px; }
 </style>
 </head>
 <body>
-  <main class="card">
-    <section>
-      <h1>Pull my<br /><mark>face.</mark></h1>
-      <p>Grab any part of the face and stretch it like taffy. Let go and it snaps back. Please don't pull too hard. It hurts.</p>
-      <p class="muted">An open-source remake of <a href="https://x.com/rameerez/status/2115858625180946827" target="_blank" rel="noopener">@rameerez's site</a> effect. One file, no dependencies. Your photo never leaves your browser.</p>
+  <nav>
+    <b>taffy-face</b>
+    <div>
+      <a href="#use">Use it</a>
+      <a href="#options">Options</a>
+      <a href="#how" class="wide">How it works</a>
+      <a href="https://github.com/arjunkshah12345-hash/taffy-face">GitHub →</a>
+    </div>
+  </nav>
 
-      <div class="row">
-        <label class="btn primary">Use my photo<input id="file" type="file" accept="image/*" /></label>
-        <label class="btn">+ "Ouch" photo<input id="file-ouch" type="file" accept="image/*" /></label>
-        <button id="reset">Reset</button>
+  <main>
+    <section class="card hero">
+      <div>
+        <h1>Pull <mark>Dario's</mark><br />face.</h1>
+        <p>Grab his cheek, his chin, his hair, anything, and stretch it like taffy. Let go and it snaps back. Go easy. He has a lab to run.</p>
+        <p class="muted">An open-source stretchy-face effect, remade from <a href="https://x.com/rameerez/status/2115858625180946827" target="_blank" rel="noopener">@rameerez's site</a>. One file, no dependencies, MIT. Swap in your own photo below. It never leaves your browser.</p>
+
+        <div class="row">
+          <div class="faces" role="group" aria-label="Choose a face">
+            <button data-face="dario" aria-pressed="true">Dario</button>
+            <button data-face="cartoon" aria-pressed="false">Cartoon</button>
+            <button data-face="you" aria-pressed="false">You</button>
+          </div>
+        </div>
+        <div class="row" style="margin-top: 0">
+          <label class="btn primary">Use my photo<input id="file" type="file" accept="image/*" /></label>
+          <label class="btn">+ "Ouch" photo<input id="file-ouch" type="file" accept="image/*" /></label>
+        </div>
+        <p class="muted"><b>Tip:</b> on a Mac or iPhone, right-click or long-press a photo, choose <i>Copy Subject</i>, then paste it here (⌘V). You can also drag and drop an image.</p>
+        <label class="toggle"><input id="frame" type="checkbox" checked /> Circle frame</label>
       </div>
-      <p class="muted"><b>Tip:</b> use a photo with the background removed. On a Mac or iPhone, right-click or long-press a photo, choose <i>Copy Subject</i>, then paste it here (⌘V). The "ouch" photo is optional: a second photo with the same framing, shown while you pull.</p>
-      <label class="toggle"><input id="frame" type="checkbox" checked /> Circle frame</label>
 
-      <pre><button id="copy">Copy</button><code id="snippet">&lt;canvas id=<span class="s">"face"</span> style=<span class="s">"width:500px;height:600px"</span>&gt;&lt;/canvas&gt;
+      <div class="stage framed" id="stage">
+        <div class="disc"></div>
+        <canvas id="face" aria-label="A photo of Dario Amodei whose face you can stretch with your mouse or finger"></canvas>
+        <div class="ouch" id="ouch">ouch!</div>
+        <div class="hint" id="hint">↑ click &amp; drag his face</div>
+      </div>
+    </section>
+
+    <section class="card split" id="use">
+      <div>
+        <div class="eyebrow">Use it on your site</div>
+        <h2>One import.<br />Any <mark>face.</mark></h2>
+        <p>Drop a canvas on the page, point <code>createTaffy</code> at a cut-out photo, and you're done. No build step, no framework.</p>
+        <p class="muted">Or copy <code>taffy.js</code> into your project and import it locally. It's about 300 lines.</p>
+      </div>
+      <div>
+        <pre><button class="copy" data-copy="snippet">Copy</button><code id="snippet">&lt;canvas id=<span class="s">"face"</span> style=<span class="s">"width:500px;height:600px"</span>&gt;&lt;/canvas&gt;
 &lt;script type=<span class="s">"module"</span>&gt;
   <span class="k">import</span> { createTaffy } <span class="k">from</span> <span class="s">"https://cdn.jsdelivr.net/gh/arjunkshah12345-hash/taffy-face/taffy.js"</span>;
+
   createTaffy(document.getElementById(<span class="s">"face"</span>), {
-    src: <span class="s">"me.png"</span>,          <span class="k">// transparent PNG works best</span>
-    grabSrc: <span class="s">"me-ouch.png"</span>, <span class="k">// optional</span>
+    src: <span class="s">"me.png"</span>,          <span class="c">// transparent PNG works best</span>
+    grabSrc: <span class="s">"me-ouch.png"</span>, <span class="c">// optional: shown while pulling</span>
   });
 &lt;/script&gt;</code></pre>
+      </div>
+
+      <div class="steps" style="grid-column: 1 / -1">
+        <div class="step"><div class="n">1</div><h3>Cut out the photo</h3><p>Use <i>Copy Subject</i> on a Mac or iPhone, or any background remover, and save a PNG. A photo with its background works too. The whole rectangle just becomes stretchy.</p></div>
+        <div class="step"><div class="n">2</div><h3>Add an "ouch" face</h3><p>Optional. Take a second shot from the same spot pulling a silly face. It swaps in once someone pulls hard enough.</p></div>
+        <div class="step"><div class="n">3</div><h3>Let people pull</h3><p>Mouse and touch both work. Listen for <code>grab</code>, <code>ouch</code>, <code>release</code> and <code>calm</code> events to add sounds or confetti.</p></div>
+      </div>
     </section>
 
-    <section class="stage framed" id="stage">
-      <div class="disc"></div>
-      <canvas id="face" aria-label="A stretchy face you can pull with your mouse or finger"></canvas>
-      <div class="hint" id="hint">↑ click &amp; drag the face</div>
+    <section class="card split" id="options">
+      <div>
+        <div class="eyebrow">Options</div>
+        <h2>Tune the <mark>jiggle.</mark></h2>
+        <p>Every option is optional except <code>src</code>. Change them live with <code>face.set({ ... })</code>.</p>
+        <pre><button class="copy" data-copy="api">Copy</button><code id="api"><span class="k">const</span> face = createTaffy(canvas, opts);
+<span class="k">await</span> face.ready;
+face.setImage(fileOrUrl);         <span class="c">// rest image</span>
+face.setImage(fileOrUrl, <span class="s">"grab"</span>); <span class="c">// ouch image</span>
+face.on(<span class="s">"ouch"</span>, () =&gt; {});
+face.set({ damping: <span class="s">4</span> });       <span class="c">// more wobble</span>
+face.destroy();</code></pre>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Option</th><th>Default</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>src</code></td><td>—</td><td>Rest image: URL, <code>File</code>/<code>Blob</code>, <code>&lt;img&gt;</code> or <code>&lt;canvas&gt;</code></td></tr>
+            <tr><td><code>grabSrc</code></td><td><code>null</code></td><td>Image shown while being pulled</td></tr>
+            <tr><td><code>radius</code></td><td><code>0.16</code></td><td>Size of the pulled region, as a fraction of image width</td></tr>
+            <tr><td><code>maxStretch</code></td><td><code>1.1</code></td><td>How far it stretches, in image widths (rubber-banded)</td></tr>
+            <tr><td><code>stiffness</code></td><td><code>240</code></td><td>Spring-back strength</td></tr>
+            <tr><td><code>damping</code></td><td><code>10</code></td><td>Lower means more jiggle</td></tr>
+            <tr><td><code>dragStiffness</code> / <code>dragDamping</code></td><td><code>1400</code> / <code>70</code></td><td>How tightly the skin follows the cursor</td></tr>
+            <tr><td><code>ouchDistance</code></td><td><code>0.05</code></td><td>Pull distance before switching to <code>grabSrc</code></td></tr>
+            <tr><td><code>align</code></td><td><code>"center"</code></td><td><code>"center"</code> or <code>"bottom"</code> inside the layout box</td></tr>
+            <tr><td><code>layout</code></td><td>15% inset</td><td><code>(w, h) =&gt; ({ x, y, w, h })</code> box the image fits into, in CSS px</td></tr>
+            <tr><td><code>grid</code></td><td><code>56</code></td><td>Mesh resolution</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card split" id="how">
+      <div>
+        <div class="eyebrow">How it works</div>
+        <h2>A mesh, a spring,<br />and a <mark>Gaussian.</mark></h2>
+      </div>
+      <div>
+        <p>The photo is drawn on a 56×56 grid of triangles with WebGL2. When you grab a point, every vertex gets a weight that falls off smoothly with distance, so the skin under your cursor moves most and the rest barely moves.</p>
+        <p>While you drag, each vertex chases <i>pull × weight</i>, passed through a <code>tanh</code> rubber band so it never tears. When you let go, an underdamped spring pulls it home, overshooting a little, which makes it jiggle.</p>
+        <p>Vertices with more weight are drawn in front, so the stretched part slides over the rest of the face instead of under it. Only opaque pixels can be grabbed, so the background stays put.</p>
+      </div>
     </section>
   </main>
+
   <footer>
-    <span>taffy-face · MIT</span>
-    <a href="https://github.com/arjunkshah12345-hash/taffy-face">GitHub →</a>
+    <p>Photo of Dario Amodei by <a href="https://commons.wikimedia.org/wiki/File:Dario_Amodei_at_TechCrunch_Disrupt_2023_02_(cropped).jpg" target="_blank" rel="noopener">TechCrunch</a>, <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener">CC BY 2.0</a>, via Wikimedia Commons. Background removed and cropped. A fan-made toy, not affiliated with or endorsed by Dario Amodei or Anthropic.</p>
+    <span>taffy-face · MIT · <a href="https://github.com/arjunkshah12345-hash/taffy-face">GitHub</a></span>
   </footer>
 
 <script type="module">
   import { createTaffy } from "./taffy.js";
 
-  const stage = document.getElementById("stage");
+  const FACES = {
+    dario: { src: "assets/dario.webp", grab: null, label: "A photo of Dario Amodei whose face you can stretch", hint: "↑ click & drag his face" },
+    cartoon: { src: "assets/face.svg", grab: "assets/face-ouch.svg", label: "A cartoon face you can stretch", hint: "↑ click & drag the face" },
+  };
+  let yours = null; // { src, grab } once the visitor has given us a photo
+
+  const $ = (id) => document.getElementById(id);
+  const stage = $("stage"), canvas = $("face"), hint = $("hint"), ouch = $("ouch");
   // Image box: as wide as the disc, its bottom sits on the disc's bottom so the head pops out the top.
   const layout = (w, h) => ({ x: w * 0.1, y: h * 0.02, w: w * 0.8, h: h * 0.9383 });
-  const taffy = createTaffy(document.getElementById("face"), {
-    src: "assets/face.svg",
-    grabSrc: "assets/face-ouch.svg",
-    align: "bottom",
-    layout,
-  });
-  taffy.on("grab", () => (document.getElementById("hint").style.opacity = 0));
+  const taffy = createTaffy(canvas, { src: FACES.dario.src, align: "bottom", layout });
 
-  const useFile = (f, which) => f && f.type.startsWith("image/") && taffy.setImage(f, which);
-  document.getElementById("file").onchange = (e) => {
-    useFile(e.target.files[0], "idle");
-    taffy.setImage(null, "grab"); // a cartoon "ouch" face on your photo would look odd
+  // "ouch!" badge once a pull gets far enough. Done here rather than via the "ouch"
+  // event, which only fires when there's an ouch image (Dario doesn't have one).
+  let downAt = null, grabbing = false;
+  canvas.addEventListener("pointerdown", (e) => (downAt = [e.clientX, e.clientY]));
+  window.addEventListener("pointermove", (e) => {
+    if (grabbing && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > canvas.clientWidth * 0.12) ouch.classList.add("on");
+  });
+  taffy.on("grab", () => { grabbing = true; hint.style.opacity = 0; });
+  taffy.on("release", () => { grabbing = false; ouch.classList.remove("on"); });
+
+  function pick(name) {
+    if (name === "you" && !yours) return $("file").click();
+    document.querySelectorAll("[data-face]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.face === name));
+    if (name === "you") {
+      taffy.setImage(yours.src);
+      taffy.setImage(yours.grab, "grab");
+      canvas.setAttribute("aria-label", "Your photo, which you can stretch");
+      hint.textContent = "↑ click & drag your face";
+      return;
+    }
+    const f = FACES[name];
+    taffy.setImage(f.src);
+    taffy.setImage(f.grab, "grab");
+    canvas.setAttribute("aria-label", f.label);
+    hint.textContent = f.hint;
+  }
+  document.querySelectorAll("[data-face]").forEach((b) => (b.onclick = () => pick(b.dataset.face)));
+
+  const isImage = (f) => f && f.type.startsWith("image/");
+  function useMine(file) {
+    if (!isImage(file)) return;
+    yours = { src: file, grab: null }; // a cartoon "ouch" face on your photo would look odd
+    pick("you");
+  }
+  $("file").onchange = (e) => useMine(e.target.files[0]);
+  $("file-ouch").onchange = (e) => {
+    const f = e.target.files[0];
+    if (!isImage(f)) return;
+    if (!yours) return alert("Add your main photo first, then the ouch photo.");
+    yours.grab = f;
+    pick("you");
   };
-  document.getElementById("file-ouch").onchange = (e) => useFile(e.target.files[0], "grab");
-  document.getElementById("reset").onclick = () => {
-    taffy.setImage("assets/face.svg");
-    taffy.setImage("assets/face-ouch.svg", "grab");
-  };
-  document.getElementById("frame").onchange = (e) => stage.classList.toggle("framed", e.target.checked);
+  $("frame").onchange = (e) => stage.classList.toggle("framed", e.target.checked);
 
   // Paste (e.g. "Copy Subject" on macOS / iOS) and drag & drop
   window.addEventListener("paste", (e) => {
     const item = [...e.clipboardData.items].find((i) => i.type.startsWith("image/"));
-    if (item) { useFile(item.getAsFile(), "idle"); taffy.setImage(null, "grab"); }
+    if (item) useMine(item.getAsFile());
   });
   window.addEventListener("dragover", (e) => { e.preventDefault(); document.body.classList.add("drop"); });
   window.addEventListener("dragleave", (e) => { if (!e.relatedTarget) document.body.classList.remove("drop"); });
   window.addEventListener("drop", (e) => {
     e.preventDefault();
     document.body.classList.remove("drop");
-    useFile(e.dataTransfer.files[0], "idle");
-    taffy.setImage(null, "grab");
+    useMine(e.dataTransfer.files[0]);
   });
 
-  document.getElementById("copy").onclick = async (e) => {
-    await navigator.clipboard.writeText(document.getElementById("snippet").innerText);
-    e.target.textContent = "Copied";
-    setTimeout(() => (e.target.textContent = "Copy"), 1200);
-  };
+  document.querySelectorAll(".copy").forEach((btn) => (btn.onclick = async () => {
+    await navigator.clipboard.writeText($(btn.dataset.copy).innerText);
+    btn.textContent = "Copied";
+    setTimeout(() => (btn.textContent = "Copy"), 1200);
+  }));
 </script>
 </body>
 </html>
